@@ -2,6 +2,7 @@ package CarsService.Cars.Controller;
 
 import CarsService.Cars.Entity.Cars;
 import CarsService.Cars.Entity.CarsResponse;
+import CarsService.Cars.Exception.CarNotFoundException;
 import CarsService.Cars.Repo.CarsRepository;
 import CarsService.Cars.Service.CarsService;
 import lombok.extern.slf4j.Slf4j;
@@ -10,9 +11,10 @@ import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
+
 @Slf4j
 @RestController
-@RequestMapping("/carListing")
 public class CarListingController {
 
 
@@ -23,28 +25,25 @@ public class CarListingController {
     public Mono<CarsResponse> addCar(@RequestBody Cars car) {
         return carsService.saveCar(car);
     }
-    @PostMapping(value = "/addCars")
-    public Flux<Cars> addCars(Cars cars) {
-        return carsService.saveCars(cars);
-    }
+
     @GetMapping("/getCarsInfo")
     public Flux<Cars> getCarsInfo(){
         return carsService.getCarsInfo();
     }
 
-    @GetMapping("/getCarById")
-    public Mono<Cars> getCarById(){
-        return carsService.getCarById();
+    @GetMapping("/getCarByEngineNo/{engineNo}")
+    public Mono<Cars> getCarById(@PathVariable int engineNo) throws CarNotFoundException {
+        return carsService.getCarById(engineNo);
     }
 
-    @GetMapping("/getCarByMaker")
-    public Mono<Cars> getCarByMaker(){
-        return carsService.getCarByMaker();
+    @GetMapping("/getCarByMaker/{maker}")
+    public Flux<Cars> getCarByMaker(@PathVariable String maker) {
+        return carsService.getCarByMaker(maker);
     }
 
-    @GetMapping("/getCarByModel")
-    public Mono<Cars> getCarByModel(){
-        return carsService.getCarByModel();
+    @GetMapping("/getCarByModel/{model}")
+    public Flux<Cars> getCarByModel(@PathVariable String model) {
+        return carsService.getCarByModel(model);
     }
 
 }

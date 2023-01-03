@@ -3,15 +3,13 @@ package CarsService.Cars.Service;
 import CarsService.Cars.Entity.Cars;
 import CarsService.Cars.Entity.CarsResponse;
 import CarsService.Cars.Entity.Inventory;
+import CarsService.Cars.Exception.CarNotFoundException;
 import CarsService.Cars.Repo.CarsRepository;
 import CarsService.Cars.Repo.InventoryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Scheduler;
-
-import java.util.Objects;
 
 @Service
 public class CarsServiceImpl implements CarsService{
@@ -25,9 +23,8 @@ public class CarsServiceImpl implements CarsService{
         return carsRepository.existsByEngineNo(car.getEngineNo())
                 .flatMap(exists1 -> {
                     if (exists1) {
-                        return Mono.just(car).flatMap(carsRepository::save)
-                                .map(t -> new CarsResponse(t.getEngineNo(), t.getMaker(), t.getModel(),
-                                        t.getMfgYear(), "Car Updated"));
+                        return Mono.just(car).map(t -> new CarsResponse(t.getEngineNo(), t.getMaker(), t.getModel(),
+                                        t.getMfgYear(), "Car is already listed."));
                     } else {
                         return inventoryRepository.existsByModel(car.getModel())
                                 .flatMap(exists2 -> {
@@ -58,27 +55,33 @@ public class CarsServiceImpl implements CarsService{
     }
 
     @Override
-    public Flux<Cars> saveCars(Cars cars) {
-        return null;
-    }
-
-    @Override
     public Flux<Cars> getCarsInfo() {
-        return null;
+        return carsRepository.findAll();
     }
 
     @Override
-    public Mono<Cars> getCarById() {
-        return null;
+    public Mono<Cars> getCarById(int engineNo) throws CarNotFoundException {
+        return carsRepository.existsByEngineNo(engineNo)
+                .flatMap(exists1 -> {
+                    if (exists1) {
+                        return carsRepository.findByEngineNo(engineNo);
+                    } else {
+                        try {
+                            throw new CarNotFoundException("Car is not listed with engine number " + engineNo);
+                        } catch (CarNotFoundException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+                });
     }
 
     @Override
-    public Mono<Cars> getCarByMaker() {
-        return null;
+    public Flux<Cars> getCarByMaker(String maker) {
+        return carsRepository.findByMaker(maker);
     }
 
     @Override
-    public Mono<Cars> getCarByModel() {
-        return null;
+    public Flux<Cars> getCarByModel(String model) {
+        return carsRepository.findByModel(model);
     }
 }
