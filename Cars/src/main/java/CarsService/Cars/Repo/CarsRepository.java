@@ -1,22 +1,18 @@
 package CarsService.Cars.Repo;
 
 import CarsService.Cars.Entity.Cars;
-import org.springframework.data.cassandra.repository.AllowFiltering;
-import org.springframework.data.cassandra.repository.ReactiveCassandraRepository;
+import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
+
+import java.util.List;
+
 
 @Repository
-public interface CarsRepository extends ReactiveCassandraRepository<Cars, Integer> {
+public interface CarsRepository extends MongoRepository<Cars, Integer> {
 
-    @AllowFiltering
-    public Mono<Cars> findByEngineNo(int engineNo);
-    @AllowFiltering
-    public Flux<Cars> findByMaker(String maker);
-    @AllowFiltering
-    public Flux<Cars> findByModel(String model);
-    @AllowFiltering
-    Mono<Boolean> existsByEngineNo(Integer id);
+    public Cars findByEngineNo(int engineNo);
+    public List<Cars> findByMaker(String maker);
+    public List<Cars> findByModel(String model);
+    public Boolean existsByEngineNo(Integer id);
 
 }
